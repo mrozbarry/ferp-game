@@ -1,5 +1,4 @@
-const ferp = require('ferp');
-const { Effect } = ferp.types;
+import { effects } from 'ferp';
 
 const cloneGamePad = (gamePad) => {
   if (!gamePad) return null;
@@ -45,7 +44,7 @@ const getButtonChangeMessages = (gamePad, prevGamePad, downType, upType) => (
   }, [])
 );
 
-const getAxesChangeMessages = (gamePad, prevGamePad, axeType) => (
+const getAxesChangeMessages = (gamePad, prevGamePad, axesType) => (
   gamePad.axes.reduce((axesMemo, axis, index) => {
     const prevAxis = prevGamePad.axes[index];
     if (prevAxis === axis) return axesMemo;
@@ -70,7 +69,7 @@ const getChangeMessages = (gamePads, prevGamePads, downType, upType, axesType) =
   }, [])
 );
 
-const gamePadEffect = (
+export const gamePadEffect = (
   prevGamePads,
   connectedType = 'GAMEPAD_CONNECTED',
   disconnectedType = 'GAMEPAD_DISCONNECTED',
@@ -82,13 +81,17 @@ const gamePadEffect = (
     .filter(gp => gp !== null)
     .map(cloneGamePad);
 
-  return Effect.map([
-    Effect.map(getNewlyConnected(gamePads, prevGamePads).map(gp => Effect.immediate({ type: connectedType, gamePad: gp }))),
-    Effect.map(getNewlyDisconnected(gamePads, prevGamePads).map(gp => Effect.immediate({ type: disconnectedType, gamePadIndex: gp.index }))),
-    Effect.map(getChangeMessages(gamePads, prevGamePads, downType, upType, axesType).map(Effect.immediate)),
-  ]);
-};
+  const newlyConnected = getNewlyConnected(gamePads, prevGamePads)
+    .map(gp => ({ type: connectedType, gamePad: gp }));
 
-module.exports = {
-  gamePadEffect,
+  const newlyDisconnected = getNewlyDisconnected(gamePads, prevGamePads)
+    .map(gp => ({ type: disconnectedType, gamePadIndex: gp.index }));
+
+  const changeMessages = getChangeMessages(gamePads, prevGamePads, downType, upType, axesType);
+
+  return effects.batch([
+    effects.batch(newlyConnected),
+    effects.batch(newlyDisconnected),
+    effects.batch(changeMessages),
+  ]);
 };

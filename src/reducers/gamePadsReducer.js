@@ -1,8 +1,9 @@
+import { util } from 'ferp';
+
 import { gamePadReducer } from './gamePadReducer.js';
-import { combineReducers } from './helpers.js';
 import { gamePadEffect } from '../effects/gamePadEffect.js';
 
-const gamePadsReducer = players => (message, state) => {
+export const gamePadsReducer = players => (message, state) => {
   const reduceOverGamePads = gamePads => (
     gamePads.map(gamePad => (
       gamePadReducer(players)(message, gamePad)
@@ -11,10 +12,10 @@ const gamePadsReducer = players => (message, state) => {
 
   switch (message.type) {
     case 'GAMEPAD_CONNECTED':
-      return combineReducers(reduceOverGamePads(state.concat(message.gamePad)));
+      return util.combineReducers(reduceOverGamePads(state.concat(message.gamePad)));
 
     case 'GAMEPAD_DISCONNECTED':
-      return combineReducers(
+      return util.combineReducers(
         reduceOverGamePads(state.filter(gp => gp.index !== message.gamePadIndex)),
       );
 
@@ -25,10 +26,6 @@ const gamePadsReducer = players => (message, state) => {
       ];
 
     default:
-      return combineReducers(reduceOverGamePads(state));
+      return util.combineReducers(reduceOverGamePads(state));
   }
-};
-
-module.exports = {
-  gamePadsReducer,
 };

@@ -29,13 +29,13 @@ const pointStep = (world, currentPoint) => {
 
   const timeScale = (world.timestep * world.timestep) * 1000;
   const scaledAcceleration = vector.scale(nextPoint.acceleration, timeScale);
-  const nextPosition = vector.add(
+  const nextPosition = vector.clamp(world.min, world.max, vector.add(
     vector.add(
       nextPoint.position,
       velocity,
     ),
     scaledAcceleration,
-  );
+  ));
 
   return point.createFrom(
     nextPosition,
@@ -44,13 +44,11 @@ const pointStep = (world, currentPoint) => {
   );
 };
 
-const worldStep = (world) => {
-  return {
-    ...world,
-    points: world.points.map(p => pointStep(world, p)),
-    accumulator: world.accumulator - world.timestep,
-  };
-};
+const worldStep = world => ({
+  ...world,
+  points: world.points.map(p => pointStep(world, p)),
+  accumulator: world.accumulator - world.timestep,
+});
 
 const recursivelyStepWorld = (world, allowedSteps) => {
   if (allowedSteps === 0) return world;
@@ -68,9 +66,7 @@ const worldApplyDelta = (delta, world) => {
   };
 };
 
-export const simulate = (delta, world) => {
-  return recursivelyStepWorld(
-    worldApplyDelta(delta, world),
-    3,
-  );
-};
+export const simulate = (delta, world) => recursivelyStepWorld(
+  worldApplyDelta(delta, world),
+  3,
+);

@@ -1,31 +1,29 @@
-import { types } from 'ferp';
+import { effects } from 'ferp';
 import { inputEffect } from '../effects/inputEffect.js';
 
-const { Effect } = types;
-
-const standardButtonMapping = {
-  0: 'a',
-  1: 'b',
-  2: 'x',
-  3: 'y',
-
-  4: 'leftBumper',
-  5: 'rightBumper',
-
-  6: 'leftTrigger',
-  7: 'rightTrigger',
-
-  8: 'start',
-  9: 'select',
-
-  10: 'leftStick',
-  11: 'rightStick',
-
-  12: 'up',
-  13: 'down',
-  14: 'left',
-  15: 'right',
-};
+// const standardButtonMapping = {
+//   0: 'a',
+//   1: 'b',
+//   2: 'x',
+//   3: 'y',
+//
+//   4: 'leftBumper',
+//   5: 'rightBumper',
+//
+//   6: 'leftTrigger',
+//   7: 'rightTrigger',
+//
+//   8: 'start',
+//   9: 'select',
+//
+//   10: 'leftStick',
+//   11: 'rightStick',
+//
+//   12: 'up',
+//   13: 'down',
+//   14: 'left',
+//   15: 'right',
+// };
 
 const standardAxisMapping = {
   0: 'left-horizontal',
@@ -38,27 +36,27 @@ const axesToInputEffect = (playerId, index, value) => {
   switch (standardAxisMapping[index]) {
     case 'left-horizontal':
       if (value !== 0) return inputEffect(true, playerId, value < 0 ? 'left' : 'right');
-      return Effect.map([
+      return effects.batch([
         inputEffect(false, playerId, 'left'),
         inputEffect(false, playerId, 'right'),
       ]);
 
     case 'left-vertical':
       if (value !== 0) return inputEffect(true, playerId, value < 0 ? 'up' : 'down');
-      return Effect.map([
+      return effects.batch([
         inputEffect(false, playerId, 'up'),
         inputEffect(false, playerId, 'down'),
       ]);
 
     default:
-      return Effect.none();
+      return effects.none();
   }
 };
 
-const gamePadReducer = players => (message, state) => {
+export const gamePadReducer = players => (message, state) => {
   const noGamePadIndex = typeof message.gamePadIndex === 'undefined';
   const differentGamePadIndex = state && message.gamePadIndex !== state.index;
-  if (noGamePadIndex || differentGamePadIndex) return [state, Effect.none()];
+  if (noGamePadIndex || differentGamePadIndex) return [state, effects.none()];
 
   const updateButtons = (buttons, buttonIndex, pressed, value) => {
     const nextButtons = [...buttons];
@@ -91,16 +89,16 @@ const gamePadReducer = players => (message, state) => {
 
         const effect = (() => {
           if (isGamePadFree && playerNeedsGamePadIndex) {
-            return ferp.types.Effect.immediate({
+            return {
               type: 'ASSIGN_GAMEPAD_INDEX',
               playerId: playerNeedsGamePadIndex.id,
               gamePadIndex: message.gamePadIndex,
-            });
+            };
           }
           const player = players
             .find(p => p.sourceType === 'gamepad' && p.gamePadIndex === message.gamePadIndex);
 
-          if (!player) return Effect.none();
+          if (!player) return effects.none();
 
           return inputEffect(true, player.id, message.button);
         })();
@@ -123,7 +121,7 @@ const gamePadReducer = players => (message, state) => {
           .find(p => p.sourceType === 'gamepad' && p.gamePadIndex === message.gamePadIndex);
         const effect = player
           ? inputEffect(false, player.id, message.button)
-          : Effect.none();
+          : effects.none();
 
         return [
           Object.assign({}, state, {
@@ -144,7 +142,7 @@ const gamePadReducer = players => (message, state) => {
 
         const effect = player
           ? axesToInputEffect(player.id, message.axesIndex, message.value)
-          : Effect.none();
+          : effects.none();
 
         return [
           Object.assign({}, state, {
@@ -157,11 +155,7 @@ const gamePadReducer = players => (message, state) => {
     default:
       return [
         state,
-        Effect.none(),
+        effects.none(),
       ];
   }
-};
-
-module.exports = {
-  gamePadReducer,
 };

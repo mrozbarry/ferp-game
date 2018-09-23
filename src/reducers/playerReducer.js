@@ -1,9 +1,8 @@
-import { types } from 'ferp';
+import { effects } from 'ferp';
 
-const { Effect } = types;
+export const playerReducer = id => (message, state) => {
+  if (message.playerId !== id) return [state, effects.none()];
 
-const playerReducer = id => (message, state) => {
-  if (message.playerId !== id) return [state, Effect.none()];
   switch (message.type) {
     case 'SOURCE_CHANGE':
       return [
@@ -15,7 +14,7 @@ const playerReducer = id => (message, state) => {
           left: false,
           right: false,
         }),
-        Effect.none(),
+        effects.none(),
       ];
 
     case 'ASSIGN_GAMEPAD_INDEX':
@@ -28,7 +27,7 @@ const playerReducer = id => (message, state) => {
           left: false,
           right: false,
         }),
-        Effect.none(),
+        effects.none(),
       ];
 
     case 'INPUT_DOWN':
@@ -36,7 +35,7 @@ const playerReducer = id => (message, state) => {
         Object.assign({}, state, {
           [message.key]: true,
         }),
-        Effect.none(),
+        effects.none(),
       ];
 
     case 'INPUT_UP':
@@ -44,17 +43,13 @@ const playerReducer = id => (message, state) => {
         Object.assign({}, state, {
           [message.key]: false,
         }),
-        Effect.none(),
+        effects.none(),
       ];
 
     default:
       return [
         state,
-        Effect.none(),
+        effects.none(),
       ];
   }
-};
-
-module.exports = {
-  playerReducer,
 };

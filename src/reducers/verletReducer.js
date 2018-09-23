@@ -1,8 +1,6 @@
-import { types } from 'ferp';
-import * as vector from '../types/vector/js';
+import { effects } from 'ferp';
+import * as vector from '../physics/types/vector.js';
 import { simulate } from '../physics/simulate.js';
-
-const { Effect } = types;
 
 export const verletReducer = (message, state) => {
   switch (message.type) {
@@ -16,22 +14,22 @@ export const verletReducer = (message, state) => {
           points: [],
           constraints: [],
         },
-        Effect.none(),
+        effects.none(),
       ];
 
     case 'VERLET_ADD_SHAPE':
-      return [state, Effect.none()];
+      return [state, effects.none()];
 
     case 'VERLET_REMOVE_SHAPE':
-      return [state, Effect.none()];
+      return [state, effects.none()];
 
     case 'TICK':
       return [
         simulate(message.delta, state),
-        Effect.none(),
+        effects.none(),
       ];
 
     default:
-      return [state, Effect.none()];
+      return [state, effects.none()];
   }
-}
+};

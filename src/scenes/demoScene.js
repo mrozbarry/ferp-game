@@ -8,7 +8,12 @@ const halfDotSize = dotSize / 2;
 
 const drawPoint = ctx => (entity) => {
   ctx.fillStyle = 'black';
-  ctx.fillRect(entity.position[0] - halfDotSize, entity.position[1] - halfDotSize, dotSize, dotSize);
+  ctx.fillRect(
+    entity.position[0] - halfDotSize,
+    entity.position[1] - halfDotSize,
+    dotSize,
+    dotSize,
+  );
 };
 
 export const demoScene = (canvas, world) => {

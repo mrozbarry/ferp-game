@@ -1,8 +1,5 @@
-import { types } from'ferp';
+import { effects, util } from 'ferp';
 import { playerReducer } from './playerReducer.js';
-import { combineReducers } from './helpers.js';
-
-const { Effect } = types;
 
 const clamp = (max, value) => Math.min(Math.max(0, value), max);
 
@@ -18,14 +15,14 @@ const integrate = (player, delta) => {
   });
 };
 
-const playersReducer = (message, state) => {
+export const playersReducer = (message, state) => {
   const reduceOverPlayers = players => (
     players.map(player => playerReducer(player.id)(message, player))
   );
 
   switch (message.type) {
     case 'ADD_PLAYER':
-      return combineReducers(reduceOverPlayers(state.concat({
+      return util.combineReducers(reduceOverPlayers(state.concat({
         id: message.playerId,
         sourceType: 'empty',
         gamePadIndex: null,
@@ -38,21 +35,17 @@ const playersReducer = (message, state) => {
       })));
 
     case 'REMOVE_PLAYER':
-      return combineReducers(
+      return util.combineReducers(
         reduceOverPlayers(state.filter(player => player.id !== message.playerId)),
       );
 
     case 'TICK':
       return [
         state.map(p => integrate(p, message.delta)),
-        Effect.none(),
+        effects.none(),
       ];
 
     default:
-      return combineReducers(reduceOverPlayers(state));
+      return util.combineReducers(reduceOverPlayers(state));
   }
-};
-
-module.exports = {
-  playersReducer,
 };

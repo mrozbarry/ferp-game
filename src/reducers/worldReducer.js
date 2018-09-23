@@ -1,11 +1,8 @@
-import { types } from 'ferp';
+import { effects, util } from 'ferp';
 
 import { simulate } from '../physics/simulate.js';
 import { pointReducer } from './pointReducer.js';
-import { combineReducers } from './helpers.js';
 import * as point from '../physics/types/point.js';
-
-const { Effect } = types;
 
 export const worldReducer = (message, state) => {
   switch (message.type) {
@@ -14,7 +11,7 @@ export const worldReducer = (message, state) => {
         const nextWorld = simulate(message.delta, state);
         return [
           nextWorld,
-          Effect.none(),
+          effects.none(),
         ];
       })();
 
@@ -28,13 +25,13 @@ export const worldReducer = (message, state) => {
             playerId: message.playerId,
           }),
         },
-        Effect.none(),
+        effects.none(),
       ];
 
     default:
       return (() => {
-        const result = combineReducers(
-          state.points.map(ent => pointReducer(message, ent))
+        const result = util.combineReducers(
+          state.points.map(ent => pointReducer(message, ent)),
         );
 
         return [
@@ -42,7 +39,7 @@ export const worldReducer = (message, state) => {
             ...state,
             points: result[0],
           },
-          Effect.map([
+          effects.batch([
             result[1],
           ]),
         ];

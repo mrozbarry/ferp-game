@@ -1,11 +1,9 @@
-import { types } from 'ferp';
+import { effects } from 'ferp';
 
 import * as point from '../physics/types/point.js';
 import * as vector from '../physics/types/vector.js';
 
-const { Effect } = types;
-
-const SPEED = 1.0
+const SPEED = 1.0;
 
 export const pointReducer = (message, state) => {
   switch (message.type) {
@@ -23,14 +21,14 @@ export const pointReducer = (message, state) => {
             yUp + yDown,
           ),
         );
-          
+
         return [
           point.setAcceleration(force, state),
-          Effect.none(),
+          effects.none(),
         ];
       })();
 
     default:
-      return [state, Effect.none()];
+      return [state, effects.none()];
   }
 };

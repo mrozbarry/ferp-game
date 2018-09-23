@@ -30,4 +30,9 @@ export const scale = (a, b) => createWith(
   a[1] * b,
 );
 
-export const sqrLen = (a) => a[0] * a[0] + a[1] * a[1];
+export const sqrLen = a => a[0] * a[0] + a[1] * a[1];
+
+export const clamp = (min, max, a) => createWith(
+  Math.min(max[0], Math.max(min[0], a[0])),
+  Math.min(max[1], Math.max(min[1], a[1])),
+);
